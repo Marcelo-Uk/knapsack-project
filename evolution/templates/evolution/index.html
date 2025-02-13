@@ -1,0 +1,144 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Problema da Mochila - Evolução</title>
+    <link rel="stylesheet" href="{% static 'evolution/main.css' %}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <h1>Problema da Mochila - Algoritmo Evolutivo</h1>
+    
+    <!-- Exibição dos dados fixos usados no algoritmo -->
+    <h2>Dados do Problema</h2>
+    <table border="1" cellpadding="5" cellspacing="0">
+        <thead>
+            <tr>
+                <th>Item</th>
+                <th>Peso</th>
+                <th>Benefício</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td>Notebook</td><td>4</td><td>3</td></tr>
+            <tr><td>Celular</td><td>1</td><td>1.5</td></tr>
+            <tr><td>Câmera</td><td>3</td><td>2</td></tr>
+            <tr><td>Roupas</td><td>2</td><td>1</td></tr>
+            <tr><td>Sapatos</td><td>1</td><td>0.8</td></tr>
+            <tr><td>Carregador</td><td>0.5</td><td>0.2</td></tr>
+            <tr><td>Livros</td><td>1</td><td>0.5</td></tr>
+            <tr><td>Fones</td><td>0.3</td><td>0.3</td></tr>
+            <tr><td>Óculos</td><td>2</td><td>0.4</td></tr>
+            <tr><td>Remédios</td><td>1</td><td>0.1</td></tr>
+        </tbody>
+    </table>
+    
+    <!-- Formulário para iniciar a evolução -->
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit">Iniciar Evolução</button>
+    </form>
+
+    {% if executed %}
+        <h2>Resultados da Evolução</h2>
+        <p>Melhor indivíduo encontrado: {{ result.best_individual }}</p>
+        <p>Fitness (Benefício): {{ result.final_fitness }}</p>
+        <p>Peso total: {{ result.final_weight }}</p>
+        <p>Benefício total: {{ result.final_benefit }}</p>
+
+        <!-- Container dos gráficos lado a lado -->
+        <div class="chart-container">
+            <div class="chart-item">
+                <h3>Melhor Fitness por Geração</h3>
+                <canvas id="fitnessChart" width="600" height="400"></canvas>
+            </div>
+            <div class="chart-item">
+                <h3>Projeção dos Indivíduos (Geração: <span id="genLabel">1</span>)</h3>
+                <input type="range" id="genSlider" min="1" max="{{ max_generations }}" value="1">
+                <canvas id="scatterChart" width="600" height="400"></canvas>
+            </div>
+        </div>
+
+        <script>
+            // Gráfico de melhor fitness (linha)
+            const evolutionData = JSON.parse('{{ evolution_data_json|escapejs }}');
+            const ctxFitness = document.getElementById('fitnessChart').getContext('2d');
+            const fitnessChart = new Chart(ctxFitness, {
+                type: 'line',
+                data: {
+                    labels: evolutionData.generations,
+                    datasets: [{
+                        label: 'Melhor Fitness',
+                        data: evolutionData.best_fitness,
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 2,
+                        fill: true,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+
+            // Gráfico de dispersão com projeção PCA
+            const projectionData = JSON.parse('{{ projection_data_json|escapejs }}');
+            const genSlider = document.getElementById('genSlider');
+            const genLabel = document.getElementById('genLabel');
+            const scatterCtx = document.getElementById('scatterChart').getContext('2d');
+
+            function getScatterData(generation) {
+                return projectionData.points[generation];
+            }
+            function getBestPoint(generation) {
+                return projectionData.best[generation];
+            }
+
+            let scatterChart = new Chart(scatterCtx, {
+                type: 'scatter',
+                data: {
+                    datasets: [
+                        {
+                            label: 'Indivíduos',
+                            data: getScatterData(genSlider.value),
+                            backgroundColor: 'rgba(255, 99, 132, 0.6)',
+                        },
+                        {
+                            label: 'Melhor Indivíduo',
+                            data: [ getBestPoint(genSlider.value) ],
+                            backgroundColor: 'rgba(0, 0, 0, 1)',
+                            pointRadius: 8,
+                            pointStyle: 'triangle',
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: {
+                            type: 'linear',
+                            position: 'bottom',
+                            title: { display: true, text: 'Componente Principal 1' }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            title: { display: true, text: 'Componente Principal 2' }
+                        }
+                    }
+                }
+            });
+
+            genSlider.addEventListener('input', function() {
+                const generation = genSlider.value;
+                genLabel.textContent = generation;
+                scatterChart.data.datasets[0].data = getScatterData(generation);
+                scatterChart.data.datasets[1].data = [ getBestPoint(generation) ];
+                scatterChart.update();
+            });
+        </script>
+    {% endif %}
+</body>
+</html>
