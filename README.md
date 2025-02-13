@@ -12,31 +12,31 @@ Este projeto é uma aplicação Django que implementa um algoritmo evolutivo par
 
 1. **Clone o repositório:**
 
-git clone https://github.com/seu-usuario/knapsack-project.git
+    git clone https://github.com/seu-usuario/knapsack-project.git
 
-cd knapsack-project
+    cd knapsack-project
 
 2. **Crie e ative um ambiente virtual**
 
-Windows usando 'Git Bash':
-python -m venv venv
-source venv/scripts/activate
+    Windows usando 'Git Bash':
+    python -m venv venv
+    source venv/scripts/activate
 
 3. **Instale as dependências**
 
-pip install -r requirements.txt
+    pip install -r requirements.txt
 
 4. **Realize as migrações do banco de dados**
 
-python manage.py migrate
+    python manage.py migrate
 
 5. **Rode o servidor**
 
-python manage.py runserver
+    python manage.py runserver
 
 6. **Acesse a aplicação**
 
-Abra o navegador e acesse: http://127.0.0.1:8000/
+    Abra o navegador e acesse: http://127.0.0.1:8000/
 
 **Funcionalidades**
 
