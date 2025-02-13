@@ -12,8 +12,8 @@ Este projeto é uma aplicação Django que implementa um algoritmo evolutivo par
 
 1. **Clone o repositório:**
 
-   git clone https://github.com/seu-usuario/knapsack-project.git
-   cd knapsack-project
+git clone https://github.com/seu-usuario/knapsack-project.git
+cd knapsack-project
 
 2. **Crie e ative um ambiente virtual**
 
